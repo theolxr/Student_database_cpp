@@ -1,0 +1,395 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <sstream> 
+
+using namespace std;
+bool autentificat, admin;
+
+struct user {
+    string username;
+    string password;
+    bool active;
+    int accesari;
+    int inserati;
+};
+
+struct student {
+    string nume;
+    int varsta;
+    string idnp;
+    string grupa;
+    string userInsert;
+};
+
+void inserareUser(vector<user>& utilizatori) {
+    user user;
+    cout << "Nume utilizator: ";
+    cin >> user.username;
+    cout << "Parola: ";
+    cin >> user.password;
+    user.accesari = 0;
+    user.inserati = 0;
+    user.active = true;
+    utilizatori.push_back(user);
+}
+
+void afisareUser(const vector<user>& utilizatori) {
+    cout << "Utilizatori:" << endl;
+    for (const auto& user : utilizatori) {
+        cout << "Nume utilizator: " << user.username << endl;
+        cout << "Parola: " << user.password << endl;
+        cout << "Stare: " << (user.active ? "Activ" : "Dezactivat") << endl;
+        cout << "Accesari: " << user.accesari << endl;
+        cout << "Inserari: " << user.inserati << endl;
+        cout << endl;
+    }
+}
+
+void cautareUser(const vector<user>& utilizatori) {
+    string nume;
+    cout << "Introduceti numele utilizatorului: ";
+    cin >> nume;
+    bool gasit = false;
+    for (const auto& user : utilizatori) {
+        if (user.username == nume) {
+            cout << "Nume utilizator: " << user.username << endl;
+            cout << "Parola: " << user.password << endl;
+            cout << "Stare: " << (user.active ? "Activ" : "Dezactivat") << endl;
+            cout << endl;
+            gasit = true;
+            break;
+        }
+    }
+    if (!gasit) {
+        cout << "Utilizatorul nu a fost gasit." << endl;
+    }
+}
+
+void editareUser(vector<user>& utilizatori) {
+    string nume;
+    cout << "Introduceti numele utilizatorului: ";
+    cin >> nume;
+    bool gasit = false;
+    for (auto& utilizator : utilizatori) {
+        if (utilizator.username == nume) {
+            gasit = true;
+            cout << "1. Schimbare nume" << endl;
+            cout << "2. Schimbare parola" << endl;
+            if (utilizator.active)
+                cout << "3. Dezactivare" << endl;
+            else
+                cout << "3. Activare" << endl;
+            int optiune;
+            cin >> optiune;
+            switch (optiune) {
+                case 1:
+                    cout << "Introdu Numele: ";
+                    cin >> utilizator.username;
+                    cout << "Nume schimbat cu succes." << endl;
+                    break;
+                case 2:
+                    cout << "Introdu Parola noua: ";
+                    cin >> utilizator.password;
+                    cout << "Parola schimbata cu succes." << endl;
+                    break;
+                case 3:
+                	if(!utilizator.active){
+                		cout << "Activat." << endl;
+                    	utilizator.active = true;
+                    	break;
+					}
+                    cout << "Dezactivat." << endl;
+                    utilizator.active = false;
+                    break;
+            }
+            break;
+        }
+    }
+    if (!gasit) {
+        cout << "Utilizatorul nu a fost gasit." << endl;
+    }
+}
+
+
+void inserareStudent(vector<student>& studenti, vector<user>& utilizatori, const string& userInsert) {
+    student student;
+    cout << "Nume: ";
+    cin >> student.nume;
+    cout << "Varsta: ";
+    cin >> student.varsta;
+    cout << "IDNP: ";
+    cin >> student.idnp;
+    cout << "Grupa: ";
+    cin >> student.grupa; 
+    if(autentificat){
+		for(auto &user : utilizatori){
+			if(user.username == userInsert)
+				user.inserati += 1;
+				cout<<"DA";
+		}
+	}
+
+    student.userInsert = userInsert;
+    studenti.push_back(student);
+}
+
+void afisareStudent(const vector<student>& studenti) {
+    cout << "Studenti:" << endl;
+    for (const auto& student : studenti) {
+        cout << "Nume: " << student.nume << endl;
+        cout << "Varsta: " << student.varsta << endl;
+        cout << "IDNP: " << student.idnp << endl;
+        cout << "Grupa: " << student.grupa << endl;
+        cout << "User insert: " << student.userInsert << endl;
+        cout << endl;
+    }
+}
+
+void cautareStudent(const vector<student>& studenti) {
+    string nume;
+    cout << "Introduceti numele studentului: ";
+    cin >> nume;
+    bool gasit = false;
+    for (const auto& student : studenti) {
+        if (student.nume == nume) {
+            cout << "Nume: " << student.nume << endl;
+            cout << "Varsta: " << student.varsta << endl;
+            cout << "IDNP: " << student.idnp << endl;
+            cout << "Grupa: " << student.grupa << endl;
+            cout << "User insert: " << student.userInsert << endl;
+            cout << endl;
+            gasit = true;
+            break;
+        }
+    }
+    if (!gasit) {
+        cout << "Studentul nu a fost gasit." << endl;
+    }
+}
+
+void editareStudent(vector<student>& studenti) {
+    string id;
+    cout << "Introduceti ID-ul studentului de editat: ";
+    cin >> id;
+    bool gasit = false;
+    for (auto& student : studenti) {
+        if (student.idnp == id) {
+            cout << "Nume: ";
+            cin >> student.nume;
+            cout << "Varsta: ";
+            cin >> student.varsta;
+            cout << "IDNP: ";
+            cin >> student.idnp;
+            cout << "Grupa: ";
+            cin >> student.grupa;
+            cout << "Editare realizata cu succes." << endl;
+            gasit = true;
+            break;
+        }
+    }
+    if (!gasit) {
+        cout << "Studentul nu a fost gasit." << endl;
+    }
+}
+
+void generareRaport(const vector<student>& studenti) {
+    ofstream raport("RAPORT.doc");
+    raport << "ID\tNume\tGrupa\tMedia" << endl;
+    for (const auto& student : studenti) {
+        float media = 0.0;//nu este specificat sa facem sistemul de note, sau de calculat media.
+        
+        raport << student.idnp << "\t" << student.nume << "\t" << student.grupa << "\t" << media << endl;
+    }
+    raport.close();
+    cout << "Raportul a fost generat cu succes." << endl;
+}
+
+void gestionareStatistica(const vector<user>& utilizatori, const vector<student>& studenti) {
+    ofstream statistica("statistica.txt");
+    statistica << "Utilizator\tAccesari\tStudenti inserati" << endl;
+    for (const auto& user : utilizatori) {
+        statistica << user.username << "\t\t" << user.accesari << "\t\t" << user.inserati << endl;
+    }
+    statistica.close();
+    cout << "Statistica a fost generata cu succes." << endl;
+}
+
+void salveazaInformatia(const vector<user>& utilizatori, const vector<student>& studenti){
+	ofstream users("dbuser.txt");
+	for(const auto& user : utilizatori){
+		users << user.username << " " << user.password << " " << user.active << " " << user.accesari << " " << user.inserati << endl;
+	}	
+	users.close();
+	ofstream students("dbstudent.txt");
+	for(const auto& student : studenti){
+		students << student.idnp << " " << student.nume << " " << student.grupa << " " << student.userInsert << " " << student.varsta << endl;
+	}
+	students.close();
+}
+
+void incarcaInformatia(vector<user>& utilizatori, vector<student>& studenti){
+	ifstream users("dbuser.txt");
+	vector<user> tempUtilizatori;
+    string line;
+    while (getline(users, line)) {
+        stringstream ss(line);
+        string username, password;
+        bool active;
+    	int incarcari;
+    	int accesari;
+        ss >> username >> password >> active >> accesari >> incarcari;
+        tempUtilizatori.push_back({username, password, active, accesari, incarcari});
+    }
+    utilizatori.swap(tempUtilizatori); 
+    users.close();
+	
+	ifstream students("dbstudent.txt");
+	vector<student> tempStudenti; 
+   	string lines;
+    while (getline(students, line)) {
+    	stringstream ss(line);
+    	string idnp, nume, grupa, userInsert;
+    	int varsta;
+    	ss >> idnp >> nume >> grupa >> userInsert >> varsta;
+    	tempStudenti.push_back({nume, varsta, idnp, grupa, userInsert});
+    }
+	swap(studenti, tempStudenti);
+	students.close();
+}
+
+
+string userLogat;
+void authentication(vector<user>& utilizatori, string username, string parola) {
+    for (auto& user : utilizatori) {
+        if (user.username == username && user.password == parola) {
+        	if(!user.active){
+        		cout<<"Contul e dezactivat, Contacteaza un administrator ca sa vil activati."<<endl;
+        		break;
+			}
+        	userLogat = username;
+        	autentificat = true;
+        	user.accesari++;
+        	break;
+        }
+        break;
+    }
+    if (!autentificat) {
+        cout << "Niste detalii au fost incorecte" << endl;
+    }
+}
+
+int main() {
+	vector<student> studenti;
+	vector<user> utilizatori;
+	incarcaInformatia(utilizatori, studenti);
+    
+    string nume, parola;
+	
+	int logare;
+    cout<<"----- Login -----" << endl;
+    cout<<"1. Autentificare ca Admin" << endl;
+    cout<<"2. Autentificare ca User" << endl;
+    
+    cin>>logare;
+    if(logare == 1){
+    	admin = true;
+	}
+    
+    while(!autentificat && !admin){
+    	cout << "----- Login -----"<< endl;
+    	cout << "Numele : " << endl;
+    	cin >> nume;
+    	cout << "Parola :" << endl;
+    	cin >> parola;
+    	authentication(utilizatori, nume, parola);
+	}
+	
+    while (true) {
+    	cout << "User: " << userLogat << endl;
+        cout << "----- Meniu -----" << endl;
+        cout << "1. Management Utilizatori" << endl;
+        cout << "2. Inserare Student" << endl;
+        cout << "3. Afisare Student" << endl;
+        cout << "4. Cautare Student" << endl;
+        cout << "5. Editare Student" << endl;
+        cout << "6. Raport Student" << endl;
+        cout << "7. Statistica" << endl;
+        cout << "8. Iesire si Salvare" << endl;
+        cout << "Introduceti optiunea dorita: ";
+        
+        int optiune;
+        cin >> optiune;
+
+        switch (optiune) {
+            case 1:
+            	if(!admin){
+            		cout << "Trebuie sa fii administrator sa accesezi acest meniu!" << endl;
+            		break;
+				}
+                cout << "----- Management Utilizatori -----" << endl;
+                cout << "1. Inserare user" << endl;
+                cout << "2. Editare user" << endl;
+                cout << "3. Afisare user" << endl;
+                cout << "4. Cautare user" << endl;
+                cout << "Introduceti optiunea dorita: ";
+                int optiuneUtilizatori;
+                cin >> optiuneUtilizatori;
+                switch (optiuneUtilizatori) {
+                    case 1:
+                        inserareUser(utilizatori);
+                        break;
+                    case 2:
+                        editareUser(utilizatori);
+                        break;
+                    case 3:
+                        afisareUser(utilizatori);
+                        break;
+                    case 4:
+                        cautareUser(utilizatori);
+                        break;
+                    default:
+                        cout << "Optiune invalida." << endl;
+                }
+                break;
+            case 2:
+                cout << "----- Inserare student -----" << endl;
+                inserareStudent(studenti, utilizatori, userLogat);
+                break;
+            case 3:
+                cout << "----- Afisare Student -----" << endl;
+                afisareStudent(studenti);
+                break;
+            case 4:
+                cout << "----- Cautare Student -----" << endl;
+                cautareStudent(studenti);
+                break;
+            case 5:
+                cout << "----- Editare Student -----" << endl;
+                editareStudent(studenti);
+                break;
+            case 6:
+                cout << "----- Raport Student -----" << endl;
+                generareRaport(studenti);
+                break;
+            case 7:
+            	if(!admin){
+            		cout << "Trebuie sa fii administrator sa accesezi acest meniu!" << endl;
+            		break;
+				}
+                cout << "----- Statistica -----" << endl;
+                gestionareStatistica(utilizatori, studenti);
+                break;
+            case 8:
+            	salveazaInformatia(utilizatori, studenti);
+                cout << "Programul se inchide. La revedere!" << endl;
+                return 0;
+            default:
+                cout << "Optiune invalida." << endl;
+        }
+    }
+
+    return 0;
+}
+
